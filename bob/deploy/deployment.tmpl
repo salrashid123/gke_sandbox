@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-deployment
+  namespace: ns1
+  labels:
+    app: fe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fe
+  template:
+    metadata:
+      labels:
+        app: fe
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-confidential-nodes: "true"
+      automountServiceAccountToken: true
+      containers:
+      - name: fe-app
+        image: $HARNESS_IMAGE
+        args: ["$MODEL_PROJECT-bucket", "my_model.tar.gz.enc", "gcp-kms://projects/$MODEL_PROJECT/locations/us-central1/keyRings/mykeyring/cryptoKeys/key1"]
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+
+        volumeMounts:
+        - mountPath: /var/run/secrets/iot-token
+          name: iot-token
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+      serviceAccountName: tee-sa
+      volumes:
+      - name: iot-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: iot-token
+              expirationSeconds: 3600
+              audience: gcp-sts-audience

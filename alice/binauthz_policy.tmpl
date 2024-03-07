@@ -1,0 +1,9 @@
+admissionWhitelistPatterns:
+- namePattern: openpolicyagent/gatekeeper@sha256:4ed1403e482ecd0607a765eb9a0a09fed9bd43b3b598612efc04f732243e85fd
+defaultAdmissionRule:
+  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG
+  evaluationMode: REQUIRE_ATTESTATION
+  requireAttestationsBy:
+  - projects/$MODEL_PROJECT/attestors/attestor-1
+globalPolicyEvaluationMode: ENABLE
+name: projects/$CLUSTER_PROJECT/policy

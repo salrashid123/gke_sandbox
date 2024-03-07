@@ -1,0 +1,35 @@
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: ingress-security-config
+  namespace: ns1
+spec:
+  sslPolicy: gke-ingress-ssl-policy-https
+  redirectToHttps:
+    enabled: true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fe-ingress
+  namespace: ns1
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/v1beta1.FrontendConfig: ingress-security-config
+spec:
+  ingressClassName: gce
+  tls:
+  - hosts:
+    - llama.domain.com
+    secretName: fe-secret
+  rules:
+  - host: llama.domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix        
+        backend:
+          service:
+            name: fe-srv-ingress
+            port:
+              number: 443

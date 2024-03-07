@@ -1,0 +1,52 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_push")
+
+
+load("@my_deps//:requirements.bzl", "requirement")
+
+LIBS = [
+    requirement("flask"),
+    requirement("waitress"),
+    requirement("google-cloud-storage"),
+    requirement("tink"),
+    requirement("tensorflow"),
+]
+
+py3_image(
+    name="py_image",
+    srcs=[
+        ":main"
+    ],
+    main="main.py",
+    deps = LIBS,  
+    data = glob(["public/**","templates/**"]),    
+    base = "@distroless_python3//image",   
+)
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    deps = LIBS,
+    data = glob(["public/**","templates/**"]),
+)
+
+container_image(
+    name = "server_image",
+    base = ":py_image",
+    ports = ["8080"],
+    #repository = "us-central1-docker.pkg.dev/harness-project/repo1/harness",   
+    repository = "localhost:4000/harness",        
+)
+
+container_push(
+   name = "push_image",
+   image = ":server_image",
+   format = "Docker",
+   #registry = "us-central1-docker.pkg.dev",
+   #repository = "harness-project/repo1/harness",
+   registry = "localhost:4000",      
+   repository = "harness",   
+   tag = "server_image",
+)
+

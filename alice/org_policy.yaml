@@ -1,0 +1,4 @@
+constraint: constraints/compute.restrictNonConfidentialComputing
+listPolicy:
+  allValues: DENY
+  inheritFromParent: true

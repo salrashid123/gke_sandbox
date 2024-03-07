@@ -1,0 +1,21 @@
+{
+  "displayName": "deny operator",
+  "rules": [
+    {
+      "denyRule": {
+        "deniedPrincipals": [
+          "principal://goog/subject/$BOB"
+        ],
+        "exceptionPrincipals": [
+          "principal://goog/subject/$ALICE"      
+        ],            
+        "deniedPermissions": [
+          "container.googleapis.com/clusters.create",
+          "container.googleapis.com/clusters.delete",
+          "container.googleapis.com/clusters.update",
+          "compute.googleapis.com/instances.create"
+        ]
+      }
+    }
+  ]
+}
